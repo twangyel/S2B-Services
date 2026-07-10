@@ -1,0 +1,233 @@
+# Provider Registration Page
+
+## Route
+`/become-provider`
+
+## Purpose
+Multi-section registration form for service providers. Must feel professional and trustworthy — not overwhelming. Uses collapsible sections or step cards to break the form into manageable chunks. This is a critical conversion page.
+
+## Layout
+```
+┌──────────────────────────────────────────────────────┐
+│ ← Become a Provider                                  │
+├──────────────────────────────────────────────────────┤
+│                                                      │
+│  ┌──────────────────────────────────────────────────┐│
+│  │                                                  ││
+│  │           Join S2B Services                      ││
+│  │    Reach more customers in your area            ││
+│  │                                                  ││
+│  │    [Progress: Step 1 of 4 — 25%]               ││
+│  │    ████░░░░░░░░                                  ││
+│  │                                                  ││
+│  └──────────────────────────────────────────────────┘│
+│                                                      │
+│  ┌──────────────────────────────────────────────────┐│
+│  │ 1️⃣ Basic Information               [▼/▶]       ││
+│  ├──────────────────────────────────────────────────┤│
+│  │ 👤 Full Name *                                   ││
+│  │ ┌──────────────────────────────────────────────┐ ││
+│  │ │                                              │ ││
+│  │ └──────────────────────────────────────────────┘ ││
+│  │ 📞 Phone Number *                                ││
+│  │ ┌──────────────────────────────────────────────┐ ││
+│  │ │ 17XX XXXX                                    │ ││
+│  │ └──────────────────────────────────────────────┘ ││
+│  │ ✉️ Email (Optional)                              ││
+│  │ ┌──────────────────────────────────────────────┐ ││
+│  │ │                                              │ ││
+│  │ └──────────────────────────────────────────────┘ ││
+│  │ 🔒 Password *                                    ││
+│  │ ┌──────────────────────────────────────────────┐ ││
+│  │ │                                              │👁││
+│  │ └──────────────────────────────────────────────┘ ││
+│  │                                                  ││
+│  │    ┌──────────┐                                  ││
+│  │    │ 📷 Upload│  Business Logo / Photo            ││
+│  │    │  Photo   │  (Optional)                       ││
+│  │    └──────────┘                                  ││
+│  └──────────────────────────────────────────────────┘│
+│                                                      │
+│  ┌──────────────────────────────────────────────────┐│
+│  │ 2️⃣ Service Details                 [▼/▶]       ││
+│  ├──────────────────────────────────────────────────┤│
+│  │ 🏢 Business Name *                               ││
+│  │ ┌──────────────────────────────────────────────┐ ││
+│  │ │                                              │ ││
+│  │ └──────────────────────────────────────────────┘ ││
+│  │ 🛠 Service Category *                            ││
+│  │ ┌──────────────────────────────────────────────┐ ││
+│  │ │ Select a category...               [▼]      │ ││
+│  │ └──────────────────────────────────────────────┘ ││
+│  │ 📅 Years of Experience *                         ││
+│  │ ┌──────────────────────────────────────────────┐ ││
+│  │ │ 0-1 · 1-3 · 3-5 · 5-10 · 10+    [▼]       │ ││
+│  │ └──────────────────────────────────────────────┘ ││
+│  │ 🔧 Skills / Specializations                      ││
+│  │ ┌──────────────────────────────────────────────┐ ││
+│  │ │ e.g., Wiring, Panel installation...          │ ││
+│  │ └──────────────────────────────────────────────┘ ││
+│  └──────────────────────────────────────────────────┘│
+│                                                      │
+│  ┌──────────────────────────────────────────────────┐│
+│  │ 3️⃣ Service Area & Availability    [▼/▶]       ││
+│  ├──────────────────────────────────────────────────┤│
+│  │ 📍 Primary Service Location *                    ││
+│  │ ┌──────────────────────────────────────────────┐ ││
+│  │ │ Thimphu · Paro · Punakha...        [▼]      │ ││
+│  │ └──────────────────────────────────────────────┘ ││
+│  │ 🗺️ Service Areas                                 ││
+│  │ [Thimphu] [Paro] [Haa] [+ Add]                  ││
+│  │                                                  ││
+│  │ 🕐 Opening Hours                                 ││
+│  │ Mon-Fri: [08:00] to [18:00]                     ││
+│  │ Saturday: [08:00] to [16:00]                    ││
+│  │ Sunday: [Closed / Emergency Only]               ││
+│  │                                                  ││
+│  │ ⚡ Emergency Available                            ││
+│  │ [Toggle: Yes / No]                               ││
+│  └──────────────────────────────────────────────────┘│
+│                                                      │
+│  ┌──────────────────────────────────────────────────┐│
+│  │ 4️⃣ Pricing                         [▼/▶]       ││
+│  ├──────────────────────────────────────────────────┤│
+│  │ 💰 Visit Charge (Nu.) *                          ││
+│  │ ┌──────────────────────────────────────────────┐ ││
+│  │ │ 200                                          │ ││
+│  │ └──────────────────────────────────────────────┘ ││
+│  │ ⏱️ Hourly Charge (Nu./hr)                        ││
+│  │ ┌──────────────────────────────────────────────┐ ││
+│  │ │ 350                                          │ ││
+│  │ └──────────────────────────────────────────────┘ ││
+│  │ 💰 Fixed Service Charge (Optional)               ││
+│  │ ┌──────────────────────────────────────────────┐ ││
+│  │ │                                              │ ││
+│  │ └──────────────────────────────────────────────┘ ││
+│  │ ⚡ Emergency Charge (Optional)                    ││
+│  │ ┌──────────────────────────────────────────────┐ ││
+│  │ │ 500                                          │ ││
+│  │ └──────────────────────────────────────────────┘ ││
+│  │ 📝 Pricing Note                                  ││
+│  │ Material cost is extra if required               ││
+│  └──────────────────────────────────────────────────┘│
+│                                                      │
+│  ┌──────────────────────────────────────────────────┐│
+│  │ 5️⃣ Documents                       [▼/▶]       ││
+│  ├──────────────────────────────────────────────────┤│
+│  │ 📄 Citizenship ID                                ││
+│  │ ┌──────────────────────────────────────────────┐ ││
+│  │ │ 📷 Upload front and back                     │ ││
+│  │ └──────────────────────────────────────────────┘ ││
+│  │ 📄 Trade Certificate / License                   ││
+│  │ ┌──────────────────────────────────────────────┐ ││
+│  │ │ 📷 Upload certificate                        │ ││
+│  │ └──────────────────────────────────────────────┘ ││
+│  │ 📄 Photos of Previous Work                       ││
+│  │ ┌──────────────────────────────────────────────┐ ││
+│  │ │ 📷 Upload up to 5 photos                     │ ││
+│  │ └──────────────────────────────────────────────┘ ││
+│  └──────────────────────────────────────────────────┘│
+│                                                      │
+│  ┌──────────────────────────────────────────────────┐│
+│  │ [Submit Application]                               ││
+│  └──────────────────────────────────────────────────┘│
+│                                                      │
+│  🔒 Your information is secure and will be reviewed │
+│     by our team within 24-48 hours.                 │
+│                                                      │
+│  [Padded bottom ~100px]                              │
+└──────────────────────────────────────────────────────┘
+```
+
+## Form Sections
+
+### Section: Welcome Banner
+- White card with `--primary-light` tinted background
+- Title: "Join S2B Services" (h1)
+- Subtitle: "Reach more customers in your area" (body, `--foreground-muted`)
+- Progress indicator: Linear progress bar showing completion percentage
+- Updates dynamically as sections are filled
+
+### Section 1: Basic Information (Expanded by default)
+- Collapsible section header: "1️⃣ Basic Information" with number badge + expand/collapse chevron
+- Fields:
+  - **Full Name** — Required, text input
+  - **Phone Number** — Required, tel input, Bhutan format validation
+  - **Email** — Optional, email validation
+  - **Password** — Required, min 8 chars, show/hide toggle (eye icon)
+  - **Profile Photo** — FileUploadCard, optional
+- Section validation: Name + Phone + Password required before mark as "complete"
+
+### Section 2: Service Details
+- Collapsible section header: "2️⃣ Service Details"
+- Fields:
+  - **Business Name** — Required, text input
+  - **Service Category** — Required, Select dropdown with all 28 categories
+  - **Years of Experience** — Required, Select: "0-1", "1-3", "3-5", "5-10", "10+"
+  - **Skills/Specializations** — Text input, comma-separated tags, shows as chips below
+
+### Section 3: Service Area & Availability
+- Collapsible section header: "3️⃣ Service Area & Availability"
+- Fields:
+  - **Primary Location** — Required, Select with Bhutan locations
+  - **Service Areas** — Multi-select chips (Thimphu, Paro, Punakha, Haa, Phuentsholing, etc.)
+  - **Opening Hours** — Time pickers for Mon-Fri, Saturday, Sunday
+  - **Emergency Available** — Switch toggle (Yes/No)
+
+### Section 4: Pricing
+- Collapsible section header: "4️⃣ Pricing"
+- Fields:
+  - **Visit Charge** — Required, number input, prefix "Nu."
+  - **Hourly Charge** — Optional, number input, prefix "Nu./hr"
+  - **Fixed Service Charge** — Optional, number input
+  - **Emergency Charge** — Optional, number input (shown if emergency toggle is Yes)
+  - Helper text: "Material cost is extra if required" (body-sm, `--foreground-muted`)
+
+### Section 5: Documents
+- Collapsible section header: "5️⃣ Documents"
+- Three FileUploadCard components:
+  1. Citizenship ID — "Upload front and back" — can upload 2 files
+  2. Trade Certificate — "Upload your trade certificate or license"
+  3. Work Photos — "Upload up to 5 photos of your previous work"
+- Each shows upload preview after selection
+- Documents marked optional but strongly recommended for verification
+
+## Submit Button
+- Fixed at bottom (above safe area) when scrolled past section 1
+- Full-width, `--primary` solid, 48px height
+- Text: "Submit Application" with `Send` icon
+- Disabled state: grayed out, opacity 0.5, if required fields incomplete
+- Loading state: spinner replaces text during submission
+
+## Form Validation
+- Inline validation on blur for each field
+- Required fields marked with red asterisk
+- Error messages: body-sm, `--error`, below each field
+- Section headers show checkmark when all required fields in section are valid
+- Submit button validates all sections on tap
+
+## Post-Submit Flow
+1. Button shows loading spinner (1-2s simulated)
+2. Success screen replaces form:
+   - Large `CheckCircle2` icon (64px, `--success`), animated scale-in
+   - "Application Submitted!" (h1)
+   - "We'll review your application within 24-48 hours." (body)
+   - "Application ID: S2B-PROV-001" (body-sm, `--foreground-muted`)
+   - "You can check your status anytime." (body-sm)
+   - Button: "Go to Dashboard" → navigates to provider dashboard (with pending status)
+3. Application saved to localStorage with status "pending"
+
+## Entrance Animations
+1. Header: fade in (0s)
+2. Welcome banner: slide up 20px + fade (0.1s)
+3. Section 1: slide up 16px + fade (0.15s)
+4. Other sections: collapsed, no animation until expanded
+
+## Scroll Behavior
+- Native smooth scrolling
+- Collapsible sections expand with accordion animation (0.25s)
+- Submit button becomes sticky at bottom after scrolling past section 3
+- Keyboard handling: scroll input into view when focused (important for mobile)
+
+## Data
+Form data collected and stored in localStorage as `providerApplication` object. Structure matches Provider TypeScript type with `status: 'pending'` and `applicationDate`.

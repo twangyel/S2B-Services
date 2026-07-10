@@ -1,0 +1,65 @@
+import type { SubscriptionPlan } from '@/types';
+
+export const mockSubscriptionPlans: SubscriptionPlan[] = [
+  {
+    id: 'plan-free',
+    name: 'Free Trial',
+    price: 0,
+    period: '14 days',
+    features: [
+      'List your services',
+      'Receive customer requests',
+      'Basic profile page',
+      'Up to 5 service photos',
+      'Standard search ranking',
+    ],
+    isPopular: false,
+  },
+  {
+    id: 'plan-basic',
+    name: 'Basic',
+    price: 299,
+    period: 'month',
+    features: [
+      'Everything in Free Trial',
+      'Verified badge',
+      'Priority in search results',
+      'Up to 10 service photos',
+      'Customer contact info visible',
+      'Basic analytics',
+    ],
+    isPopular: false,
+  },
+  {
+    id: 'plan-pro',
+    name: 'Pro',
+    price: 599,
+    period: 'month',
+    features: [
+      'Everything in Basic',
+      'Featured in category',
+      'Unlimited service photos',
+      'Work hour settings',
+      'Advanced analytics dashboard',
+      'Request management tools',
+      'Priority customer support',
+    ],
+    isPopular: true,
+  },
+  {
+    id: 'plan-featured',
+    name: 'Featured',
+    price: 999,
+    period: 'month',
+    features: [
+      'Everything in Pro',
+      'Homepage featured placement',
+      'Top search ranking',
+      'Custom profile banner',
+      'Customer review highlights',
+      'Dedicated account manager',
+      'Early access to new features',
+    ],
+    isPopular: false,
+  },
+];
