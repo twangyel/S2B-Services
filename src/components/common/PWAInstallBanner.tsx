@@ -140,7 +140,7 @@ export default function PWAInstallBanner() {
 
   if (showIosGuide) {
     return (
-      <div className="fixed inset-x-0 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-[95] px-4 sm:bottom-5">
+      <div className="fixed inset-x-0 top-[calc(env(safe-area-inset-top)+0.75rem)] z-[95] px-4 sm:top-5">
         <div className="mx-auto max-w-md overflow-hidden rounded-3xl border border-blue-100 bg-white p-4 shadow-2xl shadow-blue-950/15">
           <div className="flex items-start gap-3">
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
@@ -176,7 +176,7 @@ export default function PWAInstallBanner() {
   if (!showBanner || !deferredPrompt) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-[95] px-4 sm:bottom-5">
+    <div className="fixed inset-x-0 top-[calc(env(safe-area-inset-top)+0.75rem)] z-[95] px-4 sm:top-5">
       <div className="mx-auto max-w-md overflow-hidden rounded-3xl border border-blue-100 bg-white p-4 shadow-2xl shadow-blue-950/15">
         <div className="flex items-start gap-3">
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-600/25">
