@@ -34,10 +34,13 @@ import Terms from './pages/shared/Terms';
 import Privacy from './pages/shared/Privacy';
 import FAQ from './pages/shared/FAQ';
 import NotFound from './pages/NotFound';
+import PWAInstallBanner from './components/common/PWAInstallBanner';
 
 export default function App() {
   return (
-    <Routes>
+    <>
+      <PWAInstallBanner />
+      <Routes>
       {/* Customer routes */}
       <Route element={<CustomerLayout />}>
         <Route path="/" element={<Home />} />
@@ -77,6 +80,7 @@ export default function App() {
 
       {/* 404 catch-all */}
       <Route path="*" element={<NotFound />} />
-    </Routes>
+      </Routes>
+    </>
   );
 }

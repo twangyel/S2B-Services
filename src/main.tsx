@@ -11,3 +11,16 @@ createRoot(document.getElementById('root')!).render(
     </BrowserRouter>
   </StrictMode>,
 );
+
+
+function registerS2BServiceWorker() {
+  if (!('serviceWorker' in navigator) || !import.meta.env.PROD) return;
+
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register('/sw.js')
+      .catch((error) => console.warn('[S2B Services] Service worker registration failed:', error));
+  });
+}
+
+registerS2BServiceWorker();
