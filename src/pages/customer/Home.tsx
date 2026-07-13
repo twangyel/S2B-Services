@@ -13,7 +13,8 @@ import {
   SearchIcon,
   Star,
 } from 'lucide-react';
-import { mockCategories, mockProviders, mockBanners } from '@/data';
+import type { Banner, Provider, ServiceCategory } from '@/types';
+import { fetchBanners, fetchProviderDirectory, fetchServiceCategories } from '@/lib/catalog';
 import { cn } from '@/lib/utils';
 import ServiceCategoryCard from '@/components/cards/ServiceCategoryCard';
 import ProviderCompactCard from '@/components/cards/ProviderCompactCard';
@@ -44,23 +45,42 @@ const emergencyCategories = ['electrician', 'plumber', 'vehicle-mechanic'];
 export default function Home() {
   const navigate = useNavigate();
   const [currentBanner, setCurrentBanner] = useState(0);
+  const [categories, setCategories] = useState<ServiceCategory[]>([]);
+  const [providers, setProviders] = useState<Provider[]>([]);
+  const [banners, setBanners] = useState<Banner[]>([]);
 
   const greeting = useMemo(() => getGreeting(), []);
 
-  const popularCategories = mockCategories.filter((c) => c.isPopular).slice(0, 8);
-  const nearbyProviders = mockProviders
+  const popularCategories = categories.filter((c) => c.isPopular).slice(0, 8);
+  const nearbyProviders = providers
     .filter((p) => p.isVerified)
     .sort((a, b) => b.rating - a.rating)
     .slice(0, 6);
-  const featuredProviders = mockProviders.filter((p) => p.isFeatured).slice(0, 3);
-  const moreCategories = mockCategories.filter((c) => !c.isPopular).slice(0, 9);
+  const featuredProviders = providers.filter((p) => p.isFeatured).slice(0, 3);
+  const moreCategories = categories.filter((c) => !c.isPopular).slice(0, 9);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentBanner((prev) => (prev + 1) % mockBanners.length);
-    }, 5000);
-    return () => clearInterval(timer);
+    let active = true;
+    void Promise.all([fetchServiceCategories(), fetchProviderDirectory(), fetchBanners()])
+      .then(([nextCategories, nextProviders, nextBanners]) => {
+        if (!active) return;
+        setCategories(nextCategories);
+        setProviders(nextProviders);
+        setBanners(nextBanners);
+      })
+      .catch((error: unknown) => {
+        console.error('[S2B Services] Unable to load home catalog:', error);
+      });
+    return () => { active = false; };
   }, []);
+
+  useEffect(() => {
+    if (banners.length <= 1) return undefined;
+    const timer = window.setInterval(() => {
+      setCurrentBanner((prev) => (prev + 1) % banners.length);
+    }, 5000);
+    return () => window.clearInterval(timer);
+  }, [banners.length]);
 
   return (
     <motion.div
@@ -98,7 +118,7 @@ export default function Home() {
             className="flex snap-x snap-mandatory gap-3 overflow-x-auto scrollbar-hide"
             style={{ scrollBehavior: 'smooth' }}
           >
-            {mockBanners.map((banner, index) => (
+            {banners.map((banner, index) => (
               <button
                 key={banner.id}
                 onClick={() => navigate(banner.ctaTarget)}
@@ -135,7 +155,7 @@ export default function Home() {
             ))}
           </div>
           <div className="mt-2 flex justify-center gap-1.5">
-            {mockBanners.map((_, index) => (
+            {banners.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentBanner(index)}
@@ -158,7 +178,7 @@ export default function Home() {
             <p className="mt-0.5 text-sm text-foreground-muted">Emergency services available now</p>
             <div className="mt-3 flex flex-wrap gap-2">
               {emergencyCategories.map((catId) => {
-                const cat = mockCategories.find((c) => c.id === catId);
+                const cat = categories.find((c) => c.id === catId);
                 if (!cat) return null;
                 return (
                   <button
@@ -194,31 +214,35 @@ export default function Home() {
         </motion.section>
 
         {/* Nearby Verified Providers */}
-        <motion.section variants={itemVariants}>
-          <div className="flex items-center justify-between px-4 py-2">
-            <h2 className="text-lg font-bold text-foreground">Nearby Verified Providers</h2>
-          </div>
-          <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 scrollbar-hide">
-            {nearbyProviders.map((provider) => (
-              <ProviderCompactCard key={provider.id} provider={provider} />
-            ))}
-          </div>
-        </motion.section>
+        {nearbyProviders.length > 0 && (
+          <motion.section variants={itemVariants}>
+            <div className="flex items-center justify-between px-4 py-2">
+              <h2 className="text-lg font-bold text-foreground">Nearby Verified Providers</h2>
+            </div>
+            <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 scrollbar-hide">
+              {nearbyProviders.map((provider) => (
+                <ProviderCompactCard key={provider.id} provider={provider} />
+              ))}
+            </div>
+          </motion.section>
+        )}
 
         {/* Featured Providers */}
-        <motion.section variants={itemVariants}>
-          <div className="flex items-center justify-between px-4 py-2">
-            <h2 className="flex items-center gap-1.5 text-lg font-bold text-foreground">
-              <Star className="h-5 w-5 fill-secondary text-secondary" />
-              Featured Providers
-            </h2>
-          </div>
-          <div className="space-y-3 px-4">
-            {featuredProviders.map((provider) => (
-              <ProviderCard key={provider.id} provider={provider} />
-            ))}
-          </div>
-        </motion.section>
+        {featuredProviders.length > 0 && (
+          <motion.section variants={itemVariants}>
+            <div className="flex items-center justify-between px-4 py-2">
+              <h2 className="flex items-center gap-1.5 text-lg font-bold text-foreground">
+                <Star className="h-5 w-5 fill-secondary text-secondary" />
+                Featured Providers
+              </h2>
+            </div>
+            <div className="space-y-3 px-4">
+              {featuredProviders.map((provider) => (
+                <ProviderCard key={provider.id} provider={provider} />
+              ))}
+            </div>
+          </motion.section>
+        )}
 
         {/* How It Works */}
         <motion.section variants={itemVariants} className="px-4">

@@ -20,4 +20,21 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  {
+    files: ['src/components/ui/**/*.{ts,tsx}'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+      'react-hooks/set-state-in-effect': 'off',
+      'react-hooks/purity': 'off',
+    },
+  },
+  {
+    files: [
+      'src/components/common/PWAInstallBanner.tsx',
+      'src/hooks/use-mobile.ts',
+    ],
+    rules: {
+      'react-hooks/set-state-in-effect': 'off',
+    },
+  },
 ])
