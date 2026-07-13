@@ -1,7 +1,37 @@
 import type { CustomerRequest } from '@/types';
 
+const requestDefaults: Pick<
+  CustomerRequest,
+  | 'customerId'
+  | 'serviceAreaId'
+  | 'latitude'
+  | 'longitude'
+  | 'providerNote'
+  | 'estimatedAmount'
+  | 'requestedFor'
+  | 'sentAt'
+  | 'acceptedAt'
+  | 'startedAt'
+  | 'completedAt'
+  | 'cancelledAt'
+> = {
+  customerId: 'mock-customer',
+  serviceAreaId: null,
+  latitude: null,
+  longitude: null,
+  providerNote: null,
+  estimatedAmount: null,
+  requestedFor: null,
+  sentAt: null,
+  acceptedAt: null,
+  startedAt: null,
+  completedAt: null,
+  cancelledAt: null,
+};
+
 export const mockRequests: CustomerRequest[] = [
   {
+    ...requestDefaults,
     id: 'req-001',
     serviceId: 'electrician',
     serviceName: 'Electrician',
@@ -21,6 +51,7 @@ export const mockRequests: CustomerRequest[] = [
     review: 'Very professional work. Fixed the issue quickly and explained what was wrong.',
   },
   {
+    ...requestDefaults,
     id: 'req-002',
     serviceId: 'plumber',
     serviceName: 'Plumber',
@@ -38,6 +69,7 @@ export const mockRequests: CustomerRequest[] = [
     updatedAt: '2024-01-20T13:30:00Z',
   },
   {
+    ...requestDefaults,
     id: 'req-003',
     serviceId: 'cleaning',
     serviceName: 'Cleaning',
@@ -55,6 +87,7 @@ export const mockRequests: CustomerRequest[] = [
     updatedAt: '2024-02-01T10:15:00Z',
   },
   {
+    ...requestDefaults,
     id: 'req-004',
     serviceId: 'vehicle-mechanic',
     serviceName: 'Vehicle Mechanic',
@@ -72,6 +105,7 @@ export const mockRequests: CustomerRequest[] = [
     updatedAt: '2024-02-05T14:00:00Z',
   },
   {
+    ...requestDefaults,
     id: 'req-005',
     serviceId: 'ac-repair',
     serviceName: 'AC Repair',
@@ -89,6 +123,7 @@ export const mockRequests: CustomerRequest[] = [
     updatedAt: '2024-02-10T16:30:00Z',
   },
   {
+    ...requestDefaults,
     id: 'req-006',
     serviceId: 'carpenter',
     serviceName: 'Carpenter',
@@ -108,6 +143,7 @@ export const mockRequests: CustomerRequest[] = [
     review: 'Beautiful work! The bookshelf is exactly what we wanted.',
   },
   {
+    ...requestDefaults,
     id: 'req-007',
     serviceId: 'house-shifting',
     serviceName: 'House Shifting',
@@ -125,6 +161,7 @@ export const mockRequests: CustomerRequest[] = [
     updatedAt: '2024-01-26T08:00:00Z',
   },
   {
+    ...requestDefaults,
     id: 'req-008',
     serviceId: 'internet-wifi',
     serviceName: 'Internet/WiFi',
@@ -142,6 +179,7 @@ export const mockRequests: CustomerRequest[] = [
     updatedAt: '2024-02-08T15:30:00Z',
   },
   {
+    ...requestDefaults,
     id: 'req-009',
     serviceId: 'painting',
     serviceName: 'Painting',
@@ -159,6 +197,7 @@ export const mockRequests: CustomerRequest[] = [
     updatedAt: '2024-02-12T09:00:00Z',
   },
   {
+    ...requestDefaults,
     id: 'req-010',
     serviceId: 'refrigerator-repair',
     serviceName: 'Fridge Repair',

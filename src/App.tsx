@@ -15,6 +15,7 @@ import UpdatePassword from './pages/auth/UpdatePassword';
 
 // Customer pages
 import Account from './pages/customer/Account';
+import BookService from './pages/customer/BookService';
 import Home from './pages/customer/Home';
 import Profile from './pages/customer/Profile';
 import ProviderList from './pages/customer/ProviderList';
@@ -45,6 +46,7 @@ import FAQ from './pages/shared/FAQ';
 import Privacy from './pages/shared/Privacy';
 import Support from './pages/shared/Support';
 import Terms from './pages/shared/Terms';
+import RequestDetails from './pages/shared/RequestDetails';
 
 export default function App() {
   return (
@@ -65,10 +67,26 @@ export default function App() {
           <Route path="/services/:categoryId" element={<ProviderList />} />
           <Route path="/providers/:providerId" element={<ProviderProfile />} />
           <Route
+            path="/providers/:providerId/book"
+            element={
+              <RequireAuth>
+                <BookService />
+              </RequireAuth>
+            }
+          />
+          <Route
             path="/requests"
             element={
               <RequireAuth>
                 <Requests />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/requests/:requestId"
+            element={
+              <RequireAuth>
+                <RequestDetails />
               </RequireAuth>
             }
           />
@@ -105,6 +123,7 @@ export default function App() {
           <Route path="/provider/dashboard" element={<ProviderDashboard />} />
           <Route path="/provider/profile" element={<ProviderProfileMgmt />} />
           <Route path="/provider/requests" element={<ProviderRequests />} />
+          <Route path="/provider/requests/:requestId" element={<RequestDetails />} />
           <Route path="/provider/subscription" element={<ProviderSubscription />} />
         </Route>
 
@@ -123,6 +142,7 @@ export default function App() {
           <Route path="/admin/categories" element={<AdminCategories />} />
           <Route path="/admin/payments" element={<AdminPayments />} />
           <Route path="/admin/requests" element={<AdminRequests />} />
+          <Route path="/admin/requests/:requestId" element={<RequestDetails />} />
           <Route path="/admin/reviews" element={<AdminReviews />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
           <Route path="/admin/*" element={<Navigate to="/admin/dashboard" replace />} />

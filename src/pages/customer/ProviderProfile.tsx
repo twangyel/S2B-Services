@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router';
-import { Phone, MessageCircle, MapPin, Clock, Award, Briefcase } from 'lucide-react';
+import { Link, useParams } from 'react-router';
+import { Phone, MessageCircle, MapPin, Clock, Award, Briefcase, CalendarCheck } from 'lucide-react';
 import PageHeader from '@/components/common/PageHeader';
 import VerifiedBadge from '@/components/common/VerifiedBadge';
 import RatingStars from '@/components/common/RatingStars';
@@ -88,23 +88,32 @@ export default function ProviderProfile() {
         </div>
       </div>
 
-      <div className="flex gap-3 bg-white px-4 pb-4">
-        <a
-          href={`tel:${provider.phone}`}
-          className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-white shadow-button hover:bg-primary-dark"
+      <div className="bg-white px-4 pb-4">
+        <Link
+          to={`/providers/${provider.id}/book`}
+          className="mb-3 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-white shadow-button hover:bg-primary-dark"
         >
-          <Phone className="h-4 w-4" />
-          Call Now
-        </a>
-        <a
-          href={`https://wa.me/${provider.whatsapp.replace(/\D/g, '')}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-secondary py-3 text-sm font-semibold text-white hover:bg-secondary-dark"
-        >
-          <MessageCircle className="h-4 w-4" />
-          WhatsApp
-        </a>
+          <CalendarCheck className="h-4 w-4" />
+          Book This Provider
+        </Link>
+        <div className="flex gap-3">
+          <a
+            href={`tel:${provider.phone}`}
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border py-3 text-sm font-semibold text-foreground hover:bg-muted"
+          >
+            <Phone className="h-4 w-4" />
+            Call
+          </a>
+          <a
+            href={`https://wa.me/${provider.whatsapp.replace(/\D/g, '')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-secondary py-3 text-sm font-semibold text-white hover:bg-secondary-dark"
+          >
+            <MessageCircle className="h-4 w-4" />
+            WhatsApp
+          </a>
+        </div>
       </div>
 
       <div className="mt-3 space-y-3 px-4">
