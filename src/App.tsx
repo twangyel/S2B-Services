@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router';
+import { Navigate, Route, Routes } from 'react-router';
 import RequireAuth from './components/auth/RequireAuth';
 import RequireRole from './components/auth/RequireRole';
 import PWAInstallBanner from './components/common/PWAInstallBanner';
@@ -116,6 +116,7 @@ export default function App() {
             </RequireRole>
           }
         >
+          <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/providers" element={<AdminProviders />} />
           <Route path="/admin/approvals" element={<AdminApprovals />} />
@@ -124,6 +125,7 @@ export default function App() {
           <Route path="/admin/requests" element={<AdminRequests />} />
           <Route path="/admin/reviews" element={<AdminReviews />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
+          <Route path="/admin/*" element={<Navigate to="/admin/dashboard" replace />} />
         </Route>
 
         {/* Shared pages */}
