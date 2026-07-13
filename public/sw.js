@@ -1,4 +1,4 @@
-const CACHE_NAME = 's2b-services-v5';
+const CACHE_NAME = 's2b-services-v6';
 const APP_SHELL = ['/', '/manifest.json', '/icon-192.png', '/icon-512.png'];
 
 self.addEventListener('install', (event) => {

@@ -119,6 +119,9 @@ export default function AdminDashboard() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'service_requests' }, () => void loadDashboard())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'provider_profiles' }, () => void loadDashboard())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'reviews' }, () => void loadDashboard())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'complaints' }, () => void loadDashboard())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'provider_subscriptions' }, () => void loadDashboard())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'subscription_payment_proofs' }, () => void loadDashboard())
       .subscribe();
     return () => {
       window.clearTimeout(timer);

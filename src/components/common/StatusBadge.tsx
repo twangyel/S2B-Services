@@ -16,6 +16,8 @@ const statusConfig: Record<string, { bg: string; text: string; label: string; pu
   // Amber/orange variants
   busy: { bg: 'bg-warning-light', text: 'text-warning', label: 'Busy' },
   pending: { bg: 'bg-warning-light', text: 'text-warning', label: 'Pending' },
+  open: { bg: 'bg-warning-light', text: 'text-warning', label: 'Open' },
+  escalated: { bg: 'bg-error-light', text: 'text-error', label: 'Escalated' },
   warning: { bg: 'bg-warning-light', text: 'text-warning', label: 'Warning' },
   // Gray variants
   offline: { bg: 'bg-muted', text: 'text-foreground-muted', label: 'Offline' },

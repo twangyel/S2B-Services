@@ -1,7 +1,9 @@
 import {
+  Bell,
   ChevronRight,
   FileText,
   HelpCircle,
+  MessageSquareWarning,
   LayoutDashboard,
   LogIn,
   LogOut,
@@ -25,6 +27,7 @@ export default function Account() {
 
   const menuItems = [
     ...(user ? [{ icon: User, label: 'My Profile', path: '/account/profile' }] : []),
+    ...(user ? [{ icon: Bell, label: 'Notifications', path: '/notifications' }] : []),
     { icon: Phone, label: 'My Bookings', path: '/requests' },
     ...(!isProvider && !isAdmin
       ? [{ icon: Wrench, label: 'Become a Provider', path: '/become-provider' }]
@@ -35,7 +38,8 @@ export default function Account() {
     ...(isAdmin
       ? [{ icon: LayoutDashboard, label: 'Admin Panel', path: '/admin/dashboard' }]
       : []),
-    { icon: HelpCircle, label: 'Support & FAQ', path: '/faq' },
+    ...(user ? [{ icon: MessageSquareWarning, label: 'Complaints', path: '/complaints' }] : []),
+    { icon: HelpCircle, label: 'Support & FAQ', path: '/support' },
     { icon: FileText, label: 'Terms of Service', path: '/terms' },
     { icon: Shield, label: 'Privacy Policy', path: '/privacy' },
   ];

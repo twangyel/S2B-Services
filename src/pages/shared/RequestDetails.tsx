@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router';
 import {
+  AlertTriangle,
   CalendarClock,
   CheckCircle2,
   Clock3,
@@ -331,6 +332,16 @@ export default function RequestDetails() {
 
         {isCustomerOwner && ['sent', 'accepted'].includes(request.status) && (
           <Button disabled={submitting} variant="outline" onClick={() => void runStatusUpdate('cancelled')} className="h-11 w-full border-error text-error">Cancel Booking</Button>
+        )}
+
+        {isCustomerOwner && ['accepted', 'in_progress', 'completed', 'cancelled'].includes(request.status) && (
+          <Link
+            to={`/complaints?requestId=${request.id}`}
+            className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-warning/40 bg-warning-light text-sm font-semibold text-warning"
+          >
+            <AlertTriangle className="h-4 w-4" />
+            Report a Problem
+          </Link>
         )}
 
         {isAdmin && (

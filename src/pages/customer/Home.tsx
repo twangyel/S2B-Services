@@ -19,6 +19,7 @@ import { cn } from '@/lib/utils';
 import ServiceCategoryCard from '@/components/cards/ServiceCategoryCard';
 import ProviderCompactCard from '@/components/cards/ProviderCompactCard';
 import ProviderCard from '@/components/cards/ProviderCard';
+import NotificationBell from '@/components/common/NotificationBell';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -91,13 +92,18 @@ export default function Home() {
     >
       {/* Header */}
       <motion.header variants={itemVariants} className="bg-white px-4 pb-3 pt-4 shadow-sm">
-        <h1 className="text-2xl font-extrabold tracking-tight text-foreground">
-          {greeting}
-        </h1>
-        <button className="mt-1 flex items-center gap-1 text-sm text-foreground-muted">
-          <MapPin className="h-4 w-4 text-primary" />
-          Set your location
-        </button>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-extrabold tracking-tight text-foreground">
+              {greeting}
+            </h1>
+            <button className="mt-1 flex items-center gap-1 text-sm text-foreground-muted">
+              <MapPin className="h-4 w-4 text-primary" />
+              Set your location
+            </button>
+          </div>
+          <NotificationBell className="border border-border bg-white shadow-sm" />
+        </div>
       </motion.header>
 
       {/* Search Bar */}

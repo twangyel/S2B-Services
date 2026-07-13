@@ -9,11 +9,13 @@ import {
   CreditCard,
   ClipboardList,
   MessageSquare,
+  ShieldAlert,
   Settings,
   Menu,
   X,
   Shield,
 } from 'lucide-react';
+import NotificationBell from '@/components/common/NotificationBell';
 import { cn } from '@/lib/utils';
 
 const adminNavItems = [
@@ -24,6 +26,7 @@ const adminNavItems = [
   { path: '/admin/payments', label: 'Payments', icon: CreditCard },
   { path: '/admin/requests', label: 'Requests', icon: ClipboardList },
   { path: '/admin/reviews', label: 'Reviews', icon: MessageSquare },
+  { path: '/admin/complaints', label: 'Complaints', icon: ShieldAlert },
   { path: '/admin/settings', label: 'Settings', icon: Settings },
 ];
 
@@ -53,6 +56,9 @@ export default function AdminLayout() {
             <Shield className="h-4 w-4 text-white" />
           </div>
           <h1 className="text-base font-bold text-foreground">Admin Panel</h1>
+        </div>
+        <div className="ml-auto">
+          <NotificationBell />
         </div>
       </header>
 

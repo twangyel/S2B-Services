@@ -21,6 +21,7 @@ import Profile from './pages/customer/Profile';
 import ProviderList from './pages/customer/ProviderList';
 import ProviderProfile from './pages/customer/ProviderProfile';
 import Requests from './pages/customer/Requests';
+import Complaints from './pages/customer/Complaints';
 import Services from './pages/customer/Services';
 
 // Provider pages
@@ -33,6 +34,7 @@ import ProviderSubscription from './pages/provider/ProviderSubscription';
 // Admin pages
 import AdminApprovals from './pages/admin/AdminApprovals';
 import AdminCategories from './pages/admin/AdminCategories';
+import AdminComplaints from './pages/admin/AdminComplaints';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminPayments from './pages/admin/AdminPayments';
 import AdminProviders from './pages/admin/AdminProviders';
@@ -47,6 +49,7 @@ import Privacy from './pages/shared/Privacy';
 import Support from './pages/shared/Support';
 import Terms from './pages/shared/Terms';
 import RequestDetails from './pages/shared/RequestDetails';
+import Notifications from './pages/shared/Notifications';
 
 export default function App() {
   return (
@@ -87,6 +90,14 @@ export default function App() {
             element={
               <RequireAuth>
                 <RequestDetails />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/complaints"
+            element={
+              <RequireAuth>
+                <Complaints />
               </RequireAuth>
             }
           />
@@ -144,9 +155,19 @@ export default function App() {
           <Route path="/admin/requests" element={<AdminRequests />} />
           <Route path="/admin/requests/:requestId" element={<RequestDetails />} />
           <Route path="/admin/reviews" element={<AdminReviews />} />
+          <Route path="/admin/complaints" element={<AdminComplaints />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
           <Route path="/admin/*" element={<Navigate to="/admin/dashboard" replace />} />
         </Route>
+
+        <Route
+          path="/notifications"
+          element={
+            <RequireAuth>
+              <Notifications />
+            </RequireAuth>
+          }
+        />
 
         {/* Shared pages */}
         <Route path="/support" element={<Support />} />
