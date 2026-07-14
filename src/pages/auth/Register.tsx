@@ -1,11 +1,53 @@
-import { useState, type FormEvent } from 'react';
-import { Eye, EyeOff, LoaderCircle, LockKeyhole, Mail, Phone, User } from 'lucide-react';
+import { useRef, useState, type FormEvent, type RefObject } from 'react';
+import {
+  AlertCircle,
+  Eye,
+  EyeOff,
+  LoaderCircle,
+  LockKeyhole,
+  Mail,
+  Phone,
+  User,
+} from 'lucide-react';
 import { Link, useNavigate } from 'react-router';
 import AuthNotice from '@/components/auth/AuthNotice';
 import AuthPageShell from '@/components/auth/AuthPageShell';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/use-auth';
 import { supabase } from '@/lib/supabase';
+
+type RegisterField = 'fullName' | 'phone' | 'email' | 'password' | 'confirmPassword';
+type RegisterErrors = Partial<Record<RegisterField, string>>;
+
+interface RegistrationAvailability {
+  phone_exists?: boolean;
+  email_exists?: boolean;
+}
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function friendlyRegistrationError(message: string) {
+  const normalized = message.toLowerCase();
+
+  if (
+    normalized.includes('already registered') ||
+    normalized.includes('already exists') ||
+    normalized.includes('duplicate') ||
+    normalized.includes('unique')
+  ) {
+    return 'This phone number or email is already registered. Please sign in instead.';
+  }
+
+  if (normalized.includes('phone provider') || normalized.includes('unsupported phone')) {
+    return 'Phone registration is not enabled yet. Enable the Phone provider in Supabase Authentication.';
+  }
+
+  if (normalized.includes('rate limit')) {
+    return 'Too many registration attempts. Please wait a moment and try again.';
+  }
+
+  return 'We could not create your account. Please check your details and try again.';
+}
 
 export default function Register() {
   const navigate = useNavigate();
@@ -17,8 +59,77 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<RegisterErrors>({});
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+
+  const fullNameRef = useRef<HTMLInputElement>(null);
+  const phoneRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const confirmPasswordRef = useRef<HTMLInputElement>(null);
+
+  const clearFieldError = (field: RegisterField) => {
+    setFieldErrors((current) => {
+      if (!current[field]) return current;
+      const next = { ...current };
+      delete next[field];
+      return next;
+    });
+  };
+
+  const focusFirstError = (errors: RegisterErrors) => {
+    const refs: Record<RegisterField, RefObject<HTMLInputElement | null>> = {
+      fullName: fullNameRef,
+      phone: phoneRef,
+      email: emailRef,
+      password: passwordRef,
+      confirmPassword: confirmPasswordRef,
+    };
+
+    const firstField = (
+      ['fullName', 'phone', 'email', 'password', 'confirmPassword'] as RegisterField[]
+    ).find((field) => errors[field]);
+
+    if (firstField) {
+      window.requestAnimationFrame(() => refs[firstField].current?.focus());
+    }
+  };
+
+  const validateForm = () => {
+    const errors: RegisterErrors = {};
+    const cleanedPhone = phone.replace(/\D/g, '');
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (fullName.trim().length < 2) {
+      errors.fullName = 'Please enter your full name.';
+    }
+
+    if (cleanedPhone.length !== 8) {
+      errors.phone = 'Enter a valid 8-digit Bhutan phone number.';
+    }
+
+    if (normalizedEmail && !EMAIL_PATTERN.test(normalizedEmail)) {
+      errors.email = 'Enter a valid email address or leave this field blank.';
+    }
+
+    if (password.length < 8) {
+      errors.password = 'Use a password with at least 8 characters.';
+    }
+
+    if (password !== confirmPassword) {
+      errors.confirmPassword = 'The passwords do not match.';
+    }
+
+    setFieldErrors(errors);
+    focusFirstError(errors);
+
+    return {
+      valid: Object.keys(errors).length === 0,
+      cleanedPhone,
+      normalizedEmail,
+    };
+  };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -30,52 +141,111 @@ export default function Register() {
       return;
     }
 
-    const cleanedPhone = phone.replace(/\D/g, '');
-    if (cleanedPhone.length !== 8) {
-      setErrorMessage('Enter a valid 8-digit Bhutan phone number.');
-      return;
-    }
-
-    if (password.length < 8) {
-      setErrorMessage('Use a password with at least 8 characters.');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setErrorMessage('The passwords do not match.');
-      return;
-    }
+    const { valid, cleanedPhone, normalizedEmail } = validateForm();
+    if (!valid) return;
 
     setSubmitting(true);
-    const normalizedEmail = email.trim().toLowerCase();
-    const { data, error } = await supabase.auth.signUp({
-      email: normalizedEmail,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/account`,
-        data: {
-          full_name: fullName.trim(),
-          phone: cleanedPhone,
+
+    try {
+      const authPhone = `+975${cleanedPhone}`;
+      const { data: availabilityData, error: availabilityError } = await supabase.rpc(
+        'check_registration_availability',
+        {
+          p_phone: authPhone,
+          p_email: normalizedEmail || null,
+        }
+      );
+
+      if (availabilityError) {
+        setErrorMessage(
+          'Registration validation is not ready yet. Run the supplied registration SQL and try again.'
+        );
+        return;
+      }
+
+      const availability = availabilityData as RegistrationAvailability | null;
+      const duplicateErrors: RegisterErrors = {};
+
+      if (availability?.phone_exists) {
+        duplicateErrors.phone = 'This phone number is already registered. Please sign in instead.';
+      }
+
+      if (normalizedEmail && availability?.email_exists) {
+        duplicateErrors.email = 'This email address is already registered. Please sign in instead.';
+      }
+
+      if (Object.keys(duplicateErrors).length > 0) {
+        setFieldErrors(duplicateErrors);
+        focusFirstError(duplicateErrors);
+        setErrorMessage('An account already exists with the highlighted information.');
+        return;
+      }
+
+      const { data, error } = await supabase.auth.signUp({
+        phone: authPhone,
+        password,
+        options: {
+          data: {
+            full_name: fullName.trim(),
+            phone: cleanedPhone,
+            contact_email: normalizedEmail || null,
+          },
         },
-      },
-    });
+      });
 
-    setSubmitting(false);
+      if (error) {
+        setErrorMessage(friendlyRegistrationError(error.message));
+        return;
+      }
 
-    if (error) {
-      setErrorMessage(error.message);
-      return;
+      if (normalizedEmail && data.session) {
+        const { error: emailError } = await supabase.auth.updateUser(
+          {
+            email: normalizedEmail,
+            data: {
+              contact_email: normalizedEmail,
+            },
+          },
+          {
+            emailRedirectTo: `${window.location.origin}/account`,
+          }
+        );
+
+        if (emailError) {
+          setSuccessMessage(
+            'Your account was created with your phone number. You can add or verify the optional email later from your profile.'
+          );
+          return;
+        }
+      }
+
+      if (data.session) {
+        navigate('/account', { replace: true });
+        return;
+      }
+
+      setSuccessMessage(
+        'Account created. Complete phone verification before signing in. If SMS verification is not being used, disable Confirm phone in Supabase Authentication.'
+      );
+    } finally {
+      setSubmitting(false);
     }
-
-    if (data.session) {
-      navigate('/account', { replace: true });
-      return;
-    }
-
-    setSuccessMessage(
-      'Account created. Check your email and confirm your address before signing in.'
-    );
   };
+
+  const fieldShellClass = (field: RegisterField) =>
+    `flex h-12 items-center rounded-xl border bg-white px-3 transition focus-within:ring-2 ${
+      fieldErrors[field]
+        ? 'border-red-400 focus-within:border-red-500 focus-within:ring-red-500/10'
+        : 'border-border focus-within:border-primary focus-within:ring-primary/15'
+    }`;
+
+  const FieldError = ({ field }: { field: RegisterField }) =>
+    fieldErrors[field] ? (
+      <span className="mt-1.5 flex items-center gap-1.5 text-xs font-medium text-red-600">
+        <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+        {fieldErrors[field]}
+      </span>
+    ) : null;
 
   return (
     <AuthPageShell
@@ -90,7 +260,7 @@ export default function Register() {
         </>
       }
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form noValidate onSubmit={handleSubmit} className="space-y-4">
         {!configured && (
           <AuthNotice
             type="info"
@@ -102,68 +272,91 @@ export default function Register() {
 
         <label className="block">
           <span className="mb-1.5 block text-sm font-medium text-foreground">Full name</span>
-          <div className="flex h-12 items-center rounded-xl border border-border px-3 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/15">
+          <div className={fieldShellClass('fullName')}>
             <User className="mr-2.5 h-4 w-4 text-foreground-subtle" />
             <input
+              ref={fullNameRef}
               value={fullName}
-              onChange={(event) => setFullName(event.target.value)}
+              onChange={(event) => {
+                setFullName(event.target.value);
+                clearFieldError('fullName');
+              }}
               autoComplete="name"
               placeholder="Your full name"
-              minLength={2}
-              required
-              className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-foreground-subtle"
+              aria-invalid={Boolean(fieldErrors.fullName)}
+              aria-required="true"
+              className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-foreground-subtle"
             />
           </div>
+          <FieldError field="fullName" />
         </label>
 
         <label className="block">
           <span className="mb-1.5 block text-sm font-medium text-foreground">Bhutan phone number</span>
-          <div className="flex h-12 items-center rounded-xl border border-border px-3 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/15">
+          <div className={fieldShellClass('phone')}>
             <Phone className="mr-2.5 h-4 w-4 text-foreground-subtle" />
             <span className="mr-2 text-sm text-foreground-muted">+975</span>
             <input
+              ref={phoneRef}
               type="tel"
               inputMode="numeric"
               value={phone}
-              onChange={(event) => setPhone(event.target.value)}
-              autoComplete="tel"
+              onChange={(event) => {
+                setPhone(event.target.value.replace(/\D/g, '').slice(0, 8));
+                clearFieldError('phone');
+              }}
+              autoComplete="tel-national"
               placeholder="17XXXXXX"
               maxLength={8}
-              required
-              className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-foreground-subtle"
+              aria-invalid={Boolean(fieldErrors.phone)}
+              aria-required="true"
+              className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-foreground-subtle"
             />
           </div>
+          <FieldError field="phone" />
         </label>
 
         <label className="block">
-          <span className="mb-1.5 block text-sm font-medium text-foreground">Email address</span>
-          <div className="flex h-12 items-center rounded-xl border border-border px-3 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/15">
+          <span className="mb-1.5 flex items-center justify-between text-sm font-medium text-foreground">
+            <span>Email address</span>
+            <span className="text-xs font-normal text-foreground-muted">Optional</span>
+          </span>
+          <div className={fieldShellClass('email')}>
             <Mail className="mr-2.5 h-4 w-4 text-foreground-subtle" />
             <input
+              ref={emailRef}
               type="email"
               value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              onChange={(event) => {
+                setEmail(event.target.value);
+                clearFieldError('email');
+              }}
               autoComplete="email"
               placeholder="name@example.com"
-              required
-              className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-foreground-subtle"
+              aria-invalid={Boolean(fieldErrors.email)}
+              className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-foreground-subtle"
             />
           </div>
+          <FieldError field="email" />
         </label>
 
         <label className="block">
           <span className="mb-1.5 block text-sm font-medium text-foreground">Password</span>
-          <div className="flex h-12 items-center rounded-xl border border-border px-3 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/15">
+          <div className={fieldShellClass('password')}>
             <LockKeyhole className="mr-2.5 h-4 w-4 text-foreground-subtle" />
             <input
+              ref={passwordRef}
               type={showPassword ? 'text' : 'password'}
               value={password}
-              onChange={(event) => setPassword(event.target.value)}
+              onChange={(event) => {
+                setPassword(event.target.value);
+                clearFieldError('password');
+              }}
               autoComplete="new-password"
               placeholder="At least 8 characters"
-              minLength={8}
-              required
-              className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-foreground-subtle"
+              aria-invalid={Boolean(fieldErrors.password)}
+              aria-required="true"
+              className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-foreground-subtle"
             />
             <button
               type="button"
@@ -174,29 +367,41 @@ export default function Register() {
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
+          <FieldError field="password" />
         </label>
 
         <label className="block">
           <span className="mb-1.5 block text-sm font-medium text-foreground">Confirm password</span>
-          <div className="flex h-12 items-center rounded-xl border border-border px-3 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/15">
+          <div className={fieldShellClass('confirmPassword')}>
             <LockKeyhole className="mr-2.5 h-4 w-4 text-foreground-subtle" />
             <input
+              ref={confirmPasswordRef}
               type={showPassword ? 'text' : 'password'}
               value={confirmPassword}
-              onChange={(event) => setConfirmPassword(event.target.value)}
+              onChange={(event) => {
+                setConfirmPassword(event.target.value);
+                clearFieldError('confirmPassword');
+              }}
               autoComplete="new-password"
               placeholder="Repeat your password"
-              minLength={8}
-              required
-              className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-foreground-subtle"
+              aria-invalid={Boolean(fieldErrors.confirmPassword)}
+              aria-required="true"
+              className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-foreground-subtle"
             />
           </div>
+          <FieldError field="confirmPassword" />
         </label>
 
         <p className="text-xs leading-5 text-foreground-muted">
           By creating an account, you agree to our{' '}
-          <Link to="/terms" className="font-medium text-primary">Terms</Link> and{' '}
-          <Link to="/privacy" className="font-medium text-primary">Privacy Policy</Link>.
+          <Link to="/terms" className="font-medium text-primary">
+            Terms
+          </Link>{' '}
+          and{' '}
+          <Link to="/privacy" className="font-medium text-primary">
+            Privacy Policy
+          </Link>
+          .
         </p>
 
         <Button
@@ -205,7 +410,7 @@ export default function Register() {
           className="h-12 w-full bg-primary text-white hover:bg-primary-dark"
         >
           {submitting && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-          Create Account
+          {submitting ? 'Creating Account...' : 'Create Account'}
         </Button>
       </form>
     </AuthPageShell>
