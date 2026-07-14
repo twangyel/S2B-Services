@@ -15,12 +15,20 @@ import {
   X,
   Shield,
   RadioTower,
+  UserCog,
 } from 'lucide-react';
 import NotificationBell from '@/components/common/NotificationBell';
+import { useAuth } from '@/hooks/use-auth';
 import { cn } from '@/lib/utils';
 
 const adminNavItems = [
   { path: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  {
+    path: '/admin/users',
+    label: 'Admin Management',
+    icon: UserCog,
+    superAdminOnly: true,
+  },
   { path: '/admin/providers', label: 'Providers', icon: Users },
   { path: '/admin/approvals', label: 'Approvals', icon: UserCheck },
   { path: '/admin/categories', label: 'Categories', icon: FolderOpen },
@@ -42,7 +50,12 @@ const pageTransition = {
 export default function AdminLayout() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { profile } = useAuth();
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const visibleNavItems = adminNavItems.filter(
+    (item) => !item.superAdminOnly || profile?.role === 'super_admin'
+  );
 
   return (
     <div className="mx-auto min-h-screen w-full max-w-lg bg-background lg:max-w-full">
@@ -113,7 +126,7 @@ export default function AdminLayout() {
               </div>
 
               <nav className="p-3">
-                {adminNavItems.map((item) => {
+                {visibleNavItems.map((item) => {
                   const isActive = location.pathname === item.path;
                   return (
                     <button

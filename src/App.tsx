@@ -44,6 +44,7 @@ import AdminPushDiagnostics from './pages/admin/AdminPushDiagnostics';
 import AdminRequests from './pages/admin/AdminRequests';
 import AdminReviews from './pages/admin/AdminReviews';
 import AdminSettings from './pages/admin/AdminSettings';
+import AdminUsers from './pages/admin/AdminUsers';
 
 // Shared pages
 import NotFound from './pages/NotFound';
@@ -153,6 +154,14 @@ export default function App() {
         >
           <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route
+            path="/admin/users"
+            element={
+              <RequireRole allowed={['super_admin']}>
+                <AdminUsers />
+              </RequireRole>
+            }
+          />
           <Route path="/admin/providers" element={<AdminProviders />} />
           <Route path="/admin/approvals" element={<AdminApprovals />} />
           <Route path="/admin/categories" element={<AdminCategories />} />
