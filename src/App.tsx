@@ -2,6 +2,8 @@ import { Navigate, Route, Routes } from 'react-router';
 import RequireAuth from './components/auth/RequireAuth';
 import RequireRole from './components/auth/RequireRole';
 import PWAInstallBanner from './components/common/PWAInstallBanner';
+import PushTokenSync from './components/common/PushTokenSync';
+import { Toaster } from 'sonner';
 import AdminLayout from './layouts/AdminLayout';
 import CustomerLayout from './layouts/CustomerLayout';
 import ProviderLayout from './layouts/ProviderLayout';
@@ -38,6 +40,7 @@ import AdminComplaints from './pages/admin/AdminComplaints';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminPayments from './pages/admin/AdminPayments';
 import AdminProviders from './pages/admin/AdminProviders';
+import AdminPushDiagnostics from './pages/admin/AdminPushDiagnostics';
 import AdminRequests from './pages/admin/AdminRequests';
 import AdminReviews from './pages/admin/AdminReviews';
 import AdminSettings from './pages/admin/AdminSettings';
@@ -55,6 +58,8 @@ export default function App() {
   return (
     <>
       <PWAInstallBanner />
+      <PushTokenSync />
+      <Toaster position="top-center" richColors closeButton />
       <Routes>
         {/* Authentication routes */}
         <Route path="/login" element={<Login />} />
@@ -157,6 +162,7 @@ export default function App() {
           <Route path="/admin/reviews" element={<AdminReviews />} />
           <Route path="/admin/complaints" element={<AdminComplaints />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
+          <Route path="/admin/push-diagnostics" element={<AdminPushDiagnostics />} />
           <Route path="/admin/*" element={<Navigate to="/admin/dashboard" replace />} />
         </Route>
 

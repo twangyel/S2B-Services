@@ -1,5 +1,28 @@
-const CACHE_NAME = 's2b-services-v6';
+const CACHE_NAME = 's2b-services-v7';
 const APP_SHELL = ['/', '/manifest.json', '/icon-192.png', '/icon-512.png'];
+
+const scriptUrl = new URL(self.location.href);
+const firebaseConfig = {
+  apiKey: scriptUrl.searchParams.get('apiKey') || '',
+  authDomain: scriptUrl.searchParams.get('authDomain') || '',
+  projectId: scriptUrl.searchParams.get('projectId') || '',
+  storageBucket: scriptUrl.searchParams.get('storageBucket') || '',
+  messagingSenderId: scriptUrl.searchParams.get('messagingSenderId') || '',
+  appId: scriptUrl.searchParams.get('appId') || '',
+};
+
+const firebaseConfigured = Object.values(firebaseConfig).every(Boolean);
+
+if (firebaseConfigured) {
+  try {
+    importScripts('https://www.gstatic.com/firebasejs/12.16.0/firebase-app-compat.js');
+    importScripts('https://www.gstatic.com/firebasejs/12.16.0/firebase-messaging-compat.js');
+    firebase.initializeApp(firebaseConfig);
+    firebase.messaging();
+  } catch (error) {
+    console.warn('[S2B Services] Firebase Messaging service-worker setup failed:', error);
+  }
+}
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -28,9 +51,7 @@ self.addEventListener('fetch', (event) => {
   const requestUrl = new URL(request.url);
 
   if (request.mode === 'navigate') {
-    event.respondWith(
-      fetch(request).catch(() => caches.match('/')),
-    );
+    event.respondWith(fetch(request).catch(() => caches.match('/')));
     return;
   }
 

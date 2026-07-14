@@ -8,6 +8,7 @@ import {
 import type { Session, User } from '@supabase/supabase-js';
 import { AuthContext, type AuthContextValue } from '@/contexts/auth-context';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
+import { deactivateCurrentPushTokenForSignOut } from '@/lib/push-notifications';
 import type { AppProfile } from '@/types/auth';
 
 interface AuthProviderProps {
@@ -104,6 +105,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const signOut = useCallback(async () => {
     if (!isSupabaseConfigured) return;
+    await deactivateCurrentPushTokenForSignOut();
     const { error } = await supabase.auth.signOut({ scope: 'local' });
     if (error) throw error;
   }, []);

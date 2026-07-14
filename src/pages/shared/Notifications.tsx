@@ -5,6 +5,7 @@ import AuthNotice from '@/components/auth/AuthNotice';
 import EmptyState from '@/components/common/EmptyState';
 import LoadingSkeleton from '@/components/common/LoadingSkeleton';
 import PageHeader from '@/components/common/PageHeader';
+import PushNotificationCard from '@/components/common/PushNotificationCard';
 import { useAuth } from '@/hooks/use-auth';
 import {
   deleteNotification,
@@ -122,6 +123,7 @@ export default function Notifications() {
       />
 
       <div className="px-4 py-4">
+        <PushNotificationCard />
         {errorMessage && <div className="mb-3"><AuthNotice type="error" message={errorMessage} /></div>}
         {loading ? (
           <LoadingSkeleton variant="list" />

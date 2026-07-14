@@ -14,6 +14,7 @@ import {
   Menu,
   X,
   Shield,
+  RadioTower,
 } from 'lucide-react';
 import NotificationBell from '@/components/common/NotificationBell';
 import { cn } from '@/lib/utils';
@@ -27,6 +28,7 @@ const adminNavItems = [
   { path: '/admin/requests', label: 'Requests', icon: ClipboardList },
   { path: '/admin/reviews', label: 'Reviews', icon: MessageSquare },
   { path: '/admin/complaints', label: 'Complaints', icon: ShieldAlert },
+  { path: '/admin/push-diagnostics', label: 'Push Diagnostics', icon: RadioTower },
   { path: '/admin/settings', label: 'Settings', icon: Settings },
 ];
 

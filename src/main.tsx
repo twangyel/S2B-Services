@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router';
 import App from './App';
 import { AuthProvider } from './contexts/AuthContext';
+import { registerS2BServiceWorker } from './lib/service-worker';
 import './index.css';
 
 createRoot(document.getElementById('root')!).render(
@@ -15,14 +16,10 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>
 );
 
-function registerS2BServiceWorker() {
-  if (!('serviceWorker' in navigator) || !import.meta.env.PROD) return;
-
+if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker
-      .register('/sw.js')
-      .catch((error) => console.warn('[S2B Services] Service worker registration failed:', error));
+    void registerS2BServiceWorker().catch((error) =>
+      console.warn('[S2B Services] Service worker registration failed:', error)
+    );
   });
 }
-
-registerS2BServiceWorker();
