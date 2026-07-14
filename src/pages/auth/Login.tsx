@@ -102,43 +102,49 @@ export default function Login() {
 
     setSubmitting(true);
 
-    const credentials = rawIdentifier.includes('@')
-      ? {
-          email: rawIdentifier.toLowerCase(),
-          password,
+    try {
+      const { data: authEmailData, error: resolverError } = await supabase.rpc(
+        'resolve_login_auth_email',
+        {
+          p_identifier: rawIdentifier,
         }
-      : {
-          phone: `+975${normalizeBhutanPhone(rawIdentifier)}`,
-          password,
-        };
+      );
 
-    const { data, error } = await supabase.auth.signInWithPassword(credentials);
+      if (resolverError || typeof authEmailData !== 'string' || !authEmailData) {
+        setErrorMessage('Sign-in setup is incomplete. Run the latest authentication SQL and try again.');
+        return;
+      }
 
-    if (error || !data.user) {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: authEmailData,
+        password,
+      });
+
+      if (error || !data.user) {
+        setErrorMessage('Incorrect phone number, email address or password. Please try again.');
+        return;
+      }
+
+      const { data: signedInProfile } = await supabase
+        .from('profiles')
+        .select('role, account_status')
+        .eq('id', data.user.id)
+        .maybeSingle<{ role: AppRole; account_status: string }>();
+
+      if (signedInProfile?.account_status && signedInProfile.account_status !== 'active') {
+        navigate('/unauthorized', { replace: true });
+        return;
+      }
+
+      const state = location.state as LoginLocationState | null;
+      const requestedPath = state?.from?.pathname
+        ? `${state.from.pathname}${state.from.search ?? ''}`
+        : null;
+
+      navigate(requestedPath ?? homeForRole(signedInProfile?.role), { replace: true });
+    } finally {
       setSubmitting(false);
-      setErrorMessage('Incorrect phone number, email address or password. Please try again.');
-      return;
     }
-
-    const { data: signedInProfile } = await supabase
-      .from('profiles')
-      .select('role, account_status')
-      .eq('id', data.user.id)
-      .maybeSingle<{ role: AppRole; account_status: string }>();
-
-    setSubmitting(false);
-
-    if (signedInProfile?.account_status && signedInProfile.account_status !== 'active') {
-      navigate('/unauthorized', { replace: true });
-      return;
-    }
-
-    const state = location.state as LoginLocationState | null;
-    const requestedPath = state?.from?.pathname
-      ? `${state.from.pathname}${state.from.search ?? ''}`
-      : null;
-
-    navigate(requestedPath ?? homeForRole(signedInProfile?.role), { replace: true });
   };
 
   const fieldShellClass = (field: LoginField) =>
@@ -187,7 +193,6 @@ export default function Login() {
             <input
               ref={identifierRef}
               type="text"
-              inputMode="email"
               value={identifier}
               onChange={(event) => {
                 setIdentifier(event.target.value);

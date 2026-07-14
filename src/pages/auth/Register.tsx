@@ -19,9 +19,10 @@ import { supabase } from '@/lib/supabase';
 type RegisterField = 'fullName' | 'phone' | 'email' | 'password' | 'confirmPassword';
 type RegisterErrors = Partial<Record<RegisterField, string>>;
 
-interface RegistrationAvailability {
+interface RegistrationPreparation {
   phone_exists?: boolean;
   email_exists?: boolean;
+  auth_email?: string;
 }
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -38,8 +39,8 @@ function friendlyRegistrationError(message: string) {
     return 'This phone number or email is already registered. Please sign in instead.';
   }
 
-  if (normalized.includes('phone provider') || normalized.includes('unsupported phone')) {
-    return 'Phone registration is not enabled yet. Enable the Phone provider in Supabase Authentication.';
+  if (normalized.includes('signup is disabled') || normalized.includes('email signups are disabled')) {
+    return 'Account registration is currently unavailable. Enable Email sign-ups in Supabase Authentication.';
   }
 
   if (normalized.includes('rate limit')) {
@@ -61,7 +62,6 @@ export default function Register() {
   const [submitting, setSubmitting] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<RegisterErrors>({});
   const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
 
   const fullNameRef = useRef<HTMLInputElement>(null);
   const phoneRef = useRef<HTMLInputElement>(null);
@@ -134,7 +134,6 @@ export default function Register() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setErrorMessage('');
-    setSuccessMessage('');
 
     if (!configured) {
       setErrorMessage('Supabase is not connected yet. Add the two Vite environment variables first.');
@@ -147,30 +146,29 @@ export default function Register() {
     setSubmitting(true);
 
     try {
-      const authPhone = `+975${cleanedPhone}`;
-      const { data: availabilityData, error: availabilityError } = await supabase.rpc(
-        'check_registration_availability',
+      const { data: preparationData, error: preparationError } = await supabase.rpc(
+        'prepare_phone_registration',
         {
-          p_phone: authPhone,
+          p_phone: cleanedPhone,
           p_email: normalizedEmail || null,
         }
       );
 
-      if (availabilityError) {
+      if (preparationError) {
         setErrorMessage(
-          'Registration validation is not ready yet. Run the supplied registration SQL and try again.'
+          'Registration setup is incomplete. Run the latest S2B phone-first authentication SQL and try again.'
         );
         return;
       }
 
-      const availability = availabilityData as RegistrationAvailability | null;
+      const preparation = preparationData as RegistrationPreparation | null;
       const duplicateErrors: RegisterErrors = {};
 
-      if (availability?.phone_exists) {
+      if (preparation?.phone_exists) {
         duplicateErrors.phone = 'This phone number is already registered. Please sign in instead.';
       }
 
-      if (normalizedEmail && availability?.email_exists) {
+      if (normalizedEmail && preparation?.email_exists) {
         duplicateErrors.email = 'This email address is already registered. Please sign in instead.';
       }
 
@@ -181,11 +179,18 @@ export default function Register() {
         return;
       }
 
+      const authEmail = preparation?.auth_email;
+      if (!authEmail) {
+        setErrorMessage('Registration could not be prepared. Please try again.');
+        return;
+      }
+
       const { data, error } = await supabase.auth.signUp({
-        phone: authPhone,
+        email: authEmail,
         password,
         options: {
           data: {
+            auth_mode: 'phone_alias',
             full_name: fullName.trim(),
             phone: cleanedPhone,
             contact_email: normalizedEmail || null,
@@ -198,35 +203,14 @@ export default function Register() {
         return;
       }
 
-      if (normalizedEmail && data.session) {
-        const { error: emailError } = await supabase.auth.updateUser(
-          {
-            email: normalizedEmail,
-            data: {
-              contact_email: normalizedEmail,
-            },
-          },
-          {
-            emailRedirectTo: `${window.location.origin}/account`,
-          }
+      if (!data.session) {
+        setErrorMessage(
+          'The account was created, but automatic sign-in is blocked. Turn off Confirm email in Supabase Authentication, then sign in with your phone number.'
         );
-
-        if (emailError) {
-          setSuccessMessage(
-            'Your account was created with your phone number. You can add or verify the optional email later from your profile.'
-          );
-          return;
-        }
-      }
-
-      if (data.session) {
-        navigate('/account', { replace: true });
         return;
       }
 
-      setSuccessMessage(
-        'Account created. Complete phone verification before signing in. If SMS verification is not being used, disable Confirm phone in Supabase Authentication.'
-      );
+      navigate('/account', { replace: true });
     } finally {
       setSubmitting(false);
     }
@@ -268,7 +252,6 @@ export default function Register() {
           />
         )}
         {errorMessage && <AuthNotice type="error" message={errorMessage} />}
-        {successMessage && <AuthNotice type="success" message={successMessage} />}
 
         <label className="block">
           <span className="mb-1.5 block text-sm font-medium text-foreground">Full name</span>
@@ -292,7 +275,9 @@ export default function Register() {
         </label>
 
         <label className="block">
-          <span className="mb-1.5 block text-sm font-medium text-foreground">Bhutan phone number</span>
+          <span className="mb-1.5 block text-sm font-medium text-foreground">
+            Bhutan phone number
+          </span>
           <div className={fieldShellClass('phone')}>
             <Phone className="mr-2.5 h-4 w-4 text-foreground-subtle" />
             <span className="mr-2 text-sm text-foreground-muted">+975</span>
@@ -371,7 +356,9 @@ export default function Register() {
         </label>
 
         <label className="block">
-          <span className="mb-1.5 block text-sm font-medium text-foreground">Confirm password</span>
+          <span className="mb-1.5 block text-sm font-medium text-foreground">
+            Confirm password
+          </span>
           <div className={fieldShellClass('confirmPassword')}>
             <LockKeyhole className="mr-2.5 h-4 w-4 text-foreground-subtle" />
             <input
